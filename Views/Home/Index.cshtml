@@ -1,0 +1,110 @@
+﻿@model IEnumerable<ApplicationUserDetailDto>
+@{
+    ViewData["Title"] = "Index";
+}
+
+<div class="alert alert-warning" role="alert">
+    First of all please create a new user, then login and Change password of that user.
+</div>
+
+
+<div class="row mb-3">
+    <div class="col">
+        <a asp-action="CreateUser" class="btn btn-success">Create User</a>
+    </div>
+    <div class="col text-end">
+        <a asp-action="Login" asp-controller="Account" class="btn btn-info">Login</a>
+    </div>
+</div>
+
+<div class="table-responsive">
+    <table class="table table-bordered">
+        <thead>
+            <tr>
+                <th>Id</th>
+                <th>UserName</th>
+                <th>First Name</th>
+                <th>Last Name</th>
+                <th>Email</th>
+                <th>Phone Number</th>
+                <th></th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var user in Model)
+            {
+                <tr>
+                    <td>@user.ApplicationUserId</td>
+                    <td>@user.UserName</td>
+                    <td>@user.FirstName</td>
+                    <td>@user.LastName</td>
+                    <td>@user.Email</td>
+                    <td>@user.PhoneNumber</td>
+                    <td>
+                        <button onclick="showChangePasswordModal(@(user.ApplicationUserId))" class="btn btn-outline-primary">Change Password</button>
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+</div>
+
+
+
+@section scripts {
+
+    <script>
+
+         function showChangePasswordModal(applicationUserId) {
+            $.get(`@Url.Action("ChangePassword","Account",null,Context.Request.Scheme)/${applicationUserId}`, function (response) {
+
+                $("#general-modal .modal-body").html(response);
+                $("#general-modal .modal-title").html('Change Password');
+                let generalModal = new bootstrap.Modal(document.getElementById('general-modal'));
+                generalModal.show();
+            });
+        }
+
+        $("#general-modal").on('shown.bs.modal', function () {
+            $.validator.unobtrusive.parse($('form'));
+
+            $("#change-password-form").on("submit", function (event) {
+                event.preventDefault();
+
+                if ($(this).valid()) {
+
+                    $.ajax({
+                    type: "POST",
+                    url: '@Url.Action("ChangePassword", "Account", null, Context.Request.Scheme)',
+                    data: $(this).serialize(),
+                    success: function (response) {
+                        if (response.success) {
+                            $('#general-modal').modal('hide');
+                            toastr.success('Success! Password has been changed!', { timeOut: 6000 });
+                        }
+                        else if (response.errors.length > 0) {
+
+                            $.each(response.errors, function (index, value) {
+                                toastr.error(value, { timeOut: 6000 });
+                            });
+
+                        }
+                    },
+                    });
+                }
+
+
+            })
+
+
+        });
+
+
+
+    </script>
+
+
+
+
+
+} 
