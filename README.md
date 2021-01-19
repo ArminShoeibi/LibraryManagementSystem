@@ -1,5 +1,5 @@
 # LibraryManagementSystem
-Show Custom ModelState Erros in when your form is in the modal.
+Show Custom ModelState Erros(Manually added errors in ModelState Dictionary), when your form is in the modal.
 .
 
 This project uses:
